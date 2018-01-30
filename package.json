@@ -1,0 +1,31 @@
+{
+  "name": "capstone",
+  "version": "1.0.0",
+  "description": "System Design Capstone Project",
+  "main": "./server/index.js",
+  "scripts": {
+    "start": "node ./server/index.js",
+    "server-dev": "nodemon --inspect ./server/index.js",
+    "test": "mocha test",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jluton/Pricing-Capstone.git"
+  },
+  "author": "Jake Luton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jluton/Pricing-Capstone/issues"
+  },
+  "homepage": "https://github.com/jluton/Pricing-Capstone#readme",
+  "dependencies": {
+    "koa": "^2.4.1",
+    "koa-router": "^7.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
+  }
+}
