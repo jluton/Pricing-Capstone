@@ -1,6 +1,6 @@
 const cars = require('./../cars/cars.js');
 
-module.exports = function calculateInstantaneousPrice(usersData) {
+const calculateInstantaneousPrice = function (usersData) {
   const { totalActiveDrivers, availableDrivers } = cars;
   const { totalActiveUsers, waitingUsers } = usersData;
 
@@ -10,3 +10,8 @@ module.exports = function calculateInstantaneousPrice(usersData) {
   return ((1 / (availableDriverFactor * availableDrivers / totalActiveDrivers)) +
   (waitingUserFactor * waitingUsers / totalActiveUsers)) / 2;
 };
+
+module.exports = {
+  calculateInstantaneousPrice,
+};
+

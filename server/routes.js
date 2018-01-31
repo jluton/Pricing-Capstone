@@ -1,22 +1,34 @@
-const Koa = require('koa');
 const Router = require('koa-router');
-
-const calculateInstantaneousPrice = require('./../algorithms/instantaneousPrice.js');
 const cars = require('./../cars/cars.js');
+const { calculateInstantaneousPrice } = require('./algorithms.js');
+const { quoteGenerator, sendThresholdNotification } = require('./helpers.js');
 
 const router = new Router();
 
-router.get('/pricing/', (ctx) => {
+router.get('/pricing/', async (ctx) => {
+  // Calls instantaneous price algorithm to generate price based on immediate supply/demand.
   const totalActiveUsers = parseInt(ctx.query.totalActiveUsers, 10);
   const waitingUsers = parseInt(ctx.query.waitingUsers, 10);
   const instantaneousPrice = calculateInstantaneousPrice({
     totalActiveUsers,
     waitingUsers,
   });
-  // TODO: Write middleware that calls price handler. Pass it instantaneous price. Wait
-    // Actually, these probably don't need to be middleware, they can probably just be an asynch function
-  // TODO: Return price response.
-  ctx.status = 200;
+
+  // TODO: fill out quoteGenerator function
+  // Awaits quoteGenerator, which fetches recent pricing, calls the averaged price algorithm, and produces a quote.
+  const quoteInfo = await quoteGenerator(instantaneousPrice);
+
+  // Send quote back to Passengers service.
+  ctx.response.status = 200;
+  ctx.body = quoteInfo;
+
+  // TODO: Save quote in 10 minute cache.
+
+  // If a price threshold was crossed, notify the Cars service.
+  if (quoteInfo.crossedThreshold) {
+    // TODO: Updated sendThresholdNotification with Cars service url.
+    sendThresholdNotification(quoteInfo.quotedSurgeRatio);
+  }
 });
 
 router.post('/acceptReject/', (ctx) => {
