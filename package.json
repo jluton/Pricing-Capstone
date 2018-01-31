@@ -23,11 +23,15 @@
     "axios": "^0.17.1",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
-    "koa-router": "^7.3.0"
+    "koa-router": "^7.3.0",
+    "redis": "^2.8.0",
+    "redis-server": "^1.1.0"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0"
+    "eslint-plugin-import": "^2.8.0",
+    "supertest": "^3.0.0"
   }
 }

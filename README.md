@@ -20,7 +20,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## Usage
 
-> Some usage instructions
+The Pricing microservice requires a running Redis server to be listening on port 6379. On OSX, redis can be installed using homebrew with the command "brew install redis". Once installed, a server can be started with the command redis-server.
 
 ## Requirements
 
