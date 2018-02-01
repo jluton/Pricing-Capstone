@@ -1,4 +1,6 @@
 const Router = require('koa-router');
+const uniqid = require('uniqid');
+
 const cars = require('./../cars/cars.js');
 const { calculateInstantaneousPrice } = require('./algorithms.js');
 const { quoteGenerator, sendThresholdNotification } = require('./helpers.js');
@@ -13,6 +15,7 @@ router.get('/pricing/', async (ctx) => {
     totalActiveUsers,
     waitingUsers,
   });
+  const calculationId = uniqid();
 
   // TODO: fill out quoteGenerator function
   // Awaits quoteGenerator, which fetches recent pricing, calls the averaged price algorithm, and produces a quote.
