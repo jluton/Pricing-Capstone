@@ -21,9 +21,11 @@
   "homepage": "https://github.com/jluton/Pricing-Capstone#readme",
   "dependencies": {
     "axios": "^0.17.1",
+    "dotenv": "^5.0.0",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.3.0",
+    "pg": "^7.4.1",
     "redis": "^2.8.0",
     "redis-server": "^1.1.0"
   },
