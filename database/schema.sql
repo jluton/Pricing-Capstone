@@ -7,7 +7,7 @@ CREATE DATABASE pricing;
 DROP TABLE IF EXISTS quotes;
 
 CREATE TABLE quotes(
-  calculation_id INT NOT NULL PRIMARY KEY,
+  calculation_id VARCHAR(20) NOT NULL PRIMARY KEY,
   calculation_time TIMESTAMP NOT NULL,
   instantaneous_price DECIMAL NOT NULL,
   quoted_price DECIMAL NOT NULL,
@@ -17,3 +17,5 @@ CREATE TABLE quotes(
   available_drivers INT NOT NULL,
   accepted BOOLEAN
 );
+
+
