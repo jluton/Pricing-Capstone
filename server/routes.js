@@ -17,12 +17,11 @@ router.get('/pricing/', async (ctx) => {
   });
   const calculationId = uniqid();
 
-  // TODO: fill out quoteGenerator function
-  // Awaits quoteGenerator, which fetches recent pricing, calls the averaged price algorithm, and produces a quote.
+  // Gets a price quote and assembles response object.
   const quoteInfo = await quoteGenerator(instantaneousPrice);
+  quoteInfo.calculationId = calculationId;
 
   // Send quote back to Passengers service.
-  ctx.response.status = 200;
   ctx.body = quoteInfo;
 
   // TODO: Save quote in 10 minute cache.

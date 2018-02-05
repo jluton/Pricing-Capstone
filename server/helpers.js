@@ -1,29 +1,41 @@
 const Axios = require('axios');
 const { getCachedInstantaneousPrices } = require('./../cache/helpers.js');
 
-const quoteGenerator = async function (instantaneousPrice) {
-  // takes in a price
-  // fetch all from 10 minute cache (await)
-  // append instantaneous price to cache results
-  // pass combined results to averaged price algorithm.
-  // contrain quote to be between 1 and 5.
-  // return quote 
+let previousThresholdCrossed = 0;
 
+// Takes most recent instantaneous price and asynch. returns an object with a quoted surge ratio.
+const quoteGenerator = async function (instantaneousPrice) {
   try {
+    // Fetches prices from cached and generates an average price.
     const prices = await getCachedInstantaneousPrices();
     prices.push(instantaneousPrice);
-    const averagedPrice = prices.reduce((acc, value) => acc + value, 0);
-    console.log(averagedPrice);
+    const averagedPrice = prices.reduce((acc, value) => acc + value, 0) / prices.length;
+    // Determines a quoted surge ratio by constraining averaged price to >= 1 and <= 5.
+    let quotedSurgeRatio;
+    let surgeInEffect;
+    if (averagedPrice > 1) {
+      surgeInEffect = true;
+      quotedSurgeRatio = averagedPrice < 5 ? averagedPrice : 5;
+    } else {
+      surgeInEffect = false;
+      quotedSurgeRatio = 1;
+    }
+    // Determines whether the quoted price crossed a 0.5X threshold, for notification to drivers.
+    let crossedThreshold = false;
+    const thresholdCrossed = Math.floor(quotedSurgeRatio / 0.5) * 0.5;
+    if (thresholdCrossed > previousThresholdCrossed) {
+      previousThresholdCrossed = thresholdCrossed;
+      if (thresholdCrossed > 1) crossedThreshold = true;
+    }
+    // Returns object with calculated information.
+    return {
+      quotedSurgeRatio,
+      surgeInEffect,
+      crossedThreshold,
+    };
   } catch (err) {
     throw new Error(err);
   }
-
-  // return {
-  //   id: 425245,
-  //   quotedSurgeRatio: 1.53,
-  //   surgeInEffect: true,
-  //   crossedThreshold: true,
-  // };
 };
 
 const archiver = function () {};
@@ -38,8 +50,6 @@ const sendThresholdNotification = function (quotedSurgeRatio) {
       throw new Error(err);
     });
 };
-
-quoteGenerator(1);
 
 module.exports = {
   quoteGenerator,
