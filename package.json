@@ -32,13 +32,13 @@
     "koa-router": "^7.3.0",
     "pg": "^7.4.1",
     "redis": "^2.8.0",
-    "redis-scanner": "^0.1.1"
+    "redis-scanner": "^0.1.1",
+    "uniqid": "^4.1.1"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "moment": "^2.20.1",
-    "uniqid": "^4.1.1"
+    "moment": "^2.20.1"
   }
 }

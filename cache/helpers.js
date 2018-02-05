@@ -24,7 +24,6 @@ const cachePriceQuote = function (data) {
 // Fetches all instantaneous prices in the cache and returns an array.
 const getCachedInstantaneousPrices = async function () {
   const quotes = await getAllCachedQuotes();
-  console.log(quotes.length);
   return quotes.map(quote => quote.instantaneousPrice);
 };
 
@@ -62,8 +61,6 @@ const getAllCachedQuotes = async function () {
     throw new Error(err);
   }
 };
-
-getCachedInstantaneousPrices();
 
 module.exports = {
   cachePriceQuote,

@@ -12,9 +12,7 @@ const storeEntries = function (n) {
     .catch(err => console.error(err));
 };
 
-const hrstart = process.hrtime();
-storeEntries(10000000);
-const hrend = process.hrtime(hrstart);
-console.log(`Process time: ${hrend}`);
-
+console.time('run time');
+storeEntries(1);
+console.timeEnd('run time');
 module.exports = produceRandomData;
