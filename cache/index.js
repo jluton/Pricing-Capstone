@@ -1,7 +1,10 @@
 const redis = require('redis');
+const redisScanner = require('redis-scanner');
 
 const PORT = 6379;
 const redisClient = redis.createClient(PORT);
+
+redisScanner.bindScanners(redisClient);
 
 redisClient.on('connect', () => {
   console.log('Connected to Redis cache.');
