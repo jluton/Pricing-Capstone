@@ -13,11 +13,11 @@ module.exports = function produceRandomData (includeAccepted = true) {
   instantaneousPrice = isFinite(instantaneousPrice) ? instantaneousPrice : 0;
   instantaneousPrice = instantaneousPrice <= 5 ? instantaneousPrice: 5;
 
-  let quotedPrice = instantaneousPrice + (Math.random() * 2 - 1);
-  quotedPrice = quotedPrice > 1 ? quotedPrice : 1;
+  let quotedSurgeRatio = instantaneousPrice + (Math.random() * 2 - 1);
+  quotedSurgeRatio = quotedSurgeRatio > 1 ? quotedSurgeRatio : 1;
 
   const accepted = includeAccepted ?
-    (Math.round(Math.random() - Math.random() * (quotedPrice - 1) / 5)) == true
+    (Math.round(Math.random() - Math.random() * (quotedSurgeRatio - 1) / 5)) == true
     : undefined;
   const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 
@@ -25,7 +25,7 @@ module.exports = function produceRandomData (includeAccepted = true) {
     calculationId: uniqid(),
     timestamp,
     instantaneousPrice,
-    quotedPrice,
+    quotedSurgeRatio,
     totalUsers,
     waitingUsers,
     totalActiveDrivers,

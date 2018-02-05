@@ -1,4 +1,5 @@
 const Axios = require('axios');
+const redisClient = require('./../cache/index');
 const { getCachedInstantaneousPrices } = require('./../cache/helpers.js');
 
 let previousThresholdCrossed = 0;
@@ -38,13 +39,27 @@ const quoteGenerator = async function (instantaneousPrice) {
   }
 };
 
-const archiver = function () {};
+const archiver = function () {
+  // Needs to archive all entries that are > 10 minutes old.
+  // If length > 10,000 archive entries in order of oldest
+  let mustRemove = 0;
+  redisClient.dbsize((err, size) => {
+    if (err) throw new Error(err);
+    if (size > 10000) mustRemove = size - 10000;
+  });
+
+  // while mustRemove > 0 or top of queue time < 10 min,
+    // take item off queue. Remove from redis.
+};
+
+
+archiver();
 
 // Notifies Cars service that a price threshold has been crossed, and provides updated surge ratio.
 const sendThresholdNotification = function (quotedSurgeRatio) {
   // TODO: fill out url.
   Axios.post('/', { quotedSurgeRatio })
-    .then(() => console.log('Threshold notification sent to Cars.'))
+    .then(res => console.log(res))
     .catch((err) => {
       console.log('Threshold notification failed!');
       throw new Error(err);

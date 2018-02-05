@@ -13,4 +13,4 @@ const cacheEntries = function (n) {
     .catch((err) => { throw new Error(err); });
 };
 
-cacheEntries(100000);
+cacheEntries(10000);

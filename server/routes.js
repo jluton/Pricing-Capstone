@@ -6,6 +6,8 @@ const cars = require('./../cars/cars.js');
 const { calculateInstantaneousPrice } = require('./algorithms.js');
 const { quoteGenerator, sendThresholdNotification } = require('./helpers.js');
 const { updateAccepted, storeQuoteEntry } = require('./../database/helpers.js');
+const { cachePriceQuote } = require('./../cache/helpers.js');
+const { addCalculationToCacheQueue } = require('./../cache/queue');
 
 const router = new Router();
 
@@ -28,7 +30,15 @@ router.get('/pricing/', async (ctx) => {
   // Send quote back to Passengers service.
   ctx.body = quoteInfo;
 
-  // TODO - store calculation in 10 minute cache.
+  // Store instantaneous price in 10 minute cache.
+  const cacheData = {
+    calculationId,
+    timestamp,
+    instantaneousPrice,
+  };
+  cachePriceQuote(cacheData);
+  addCalculationToCacheQueue(calculationId, timestamp);
+
 
   // Store calculation data in database.
   // TODO: Test this.

@@ -3,15 +3,8 @@ const redisClient = require('./index.js');
 
 // Takes a data object for a price quote and stores it as a redis hash.
 const cachePriceQuote = function (data) {
-  const {
-    calculationId, timestamp, instantaneousPrice, quotedPrice, totalActiveDrivers,
-    availableDrivers, totalUsers, waitingUsers,
-  } = data;
-
-  const hashArray = ['timestamp', timestamp, 'instantaneousPrice', instantaneousPrice, 'quotedPrice',
-    quotedPrice, 'totalActiveDrivers', totalActiveDrivers, 'availableDrivers', availableDrivers, 'totalUsers',
-    totalUsers, 'waitingUsers', waitingUsers,
-  ];
+  const { calculationId, timestamp, instantaneousPrice } = data;
+  const hashArray = ['timestamp', timestamp, 'instantaneousPrice', instantaneousPrice];
 
   return new Promise((resolve, reject) => {
     redisClient.hmset(calculationId, hashArray, (err, res) => {
@@ -27,6 +20,7 @@ const getCachedInstantaneousPrices = async function () {
   return quotes.map(quote => quote.instantaneousPrice);
 };
 
+// Fetches all keys in the redis cache.
 const getRedisKeys = function () {
   return new Promise((resolve, reject) => {
     redisClient.keys('*', (err, keys) => {
@@ -36,6 +30,7 @@ const getRedisKeys = function () {
   });
 };
 
+// Returns a promise for all values for a hash.
 redisClient.hgetallPromise = function (key) {
   return new Promise((resolve, reject) => {
     this.hgetall(key, (err, obj) => {
@@ -61,6 +56,13 @@ const getAllCachedQuotes = async function () {
     throw new Error(err);
   }
 };
+
+// redisClient.flushdb((err, succeeded) => {
+//   if (err) throw new Error(err);
+//   console.log(succeeded);
+// });
+
+console.log(getCachedInstantaneousPrices());
 
 module.exports = {
   cachePriceQuote,
