@@ -14,6 +14,26 @@ const cachePriceQuote = function (data) {
   });
 };
 
+// Returns a promise for all values for a hash.
+redisClient.hgetallPromise = function (key) {
+  return new Promise((resolve, reject) => {
+    this.hgetall(key, (err, obj) => {
+      if (err) reject(err);
+      resolve(obj);
+    });
+  });
+};
+
+// Returns a promise for the number of entries in the cache.
+redisClient.dbsizePromise = function () {
+  return new Promise((resolve, reject) => {
+    redisClient.dbsize((err, size) => {
+      if (err) reject(err);
+      resolve(size);
+    });
+  });
+};
+
 // Fetches all instantaneous prices in the cache and returns an array.
 const getCachedInstantaneousPrices = async function () {
   const quotes = await getAllCachedQuotes();
@@ -26,16 +46,6 @@ const getRedisKeys = function () {
     redisClient.keys('*', (err, keys) => {
       if (err) reject(err);
       resolve(keys);
-    });
-  });
-};
-
-// Returns a promise for all values for a hash.
-redisClient.hgetallPromise = function (key) {
-  return new Promise((resolve, reject) => {
-    this.hgetall(key, (err, obj) => {
-      if (err) reject(err);
-      resolve(obj);
     });
   });
 };
@@ -57,10 +67,15 @@ const getAllCachedQuotes = async function () {
   }
 };
 
-// redisClient.flushdb((err, succeeded) => {
-//   if (err) throw new Error(err);
-//   console.log(succeeded);
-// });
+const wipeCache = function () {
+  return new Promise((resolve, reject) => {
+    redisClient.flushdb((err, succeeded) => {
+      if (err) reject(err);
+      console.log('Cache flushed.');
+      resolve('flush', succeeded);
+    });
+  });
+};
 
 console.log(getCachedInstantaneousPrices());
 
@@ -68,4 +83,5 @@ module.exports = {
   cachePriceQuote,
   getCachedInstantaneousPrices,
   getAllCachedQuotes,
+  wipeCache,
 };

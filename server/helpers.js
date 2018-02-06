@@ -1,6 +1,9 @@
 const Axios = require('axios');
+const moment = require('moment');
+
 const redisClient = require('./../cache/index');
-const { getCachedInstantaneousPrices } = require('./../cache/helpers.js');
+const { getCachedInstantaneousPrices } = require('./../cache/helpers');
+const { getItemOffQueue, addCalculationToCacheQueue } = require('./../cache/queue');
 
 let previousThresholdCrossed = 0;
 
@@ -39,19 +42,46 @@ const quoteGenerator = async function (instantaneousPrice) {
   }
 };
 
-const archiver = function () {
-  // Needs to archive all entries that are > 10 minutes old.
-  // If length > 10,000 archive entries in order of oldest
-  let mustRemove = 0;
-  redisClient.dbsize((err, size) => {
-    if (err) throw new Error(err);
-    if (size > 10000) mustRemove = size - 10000;
-  });
-
-  // while mustRemove > 0 or top of queue time < 10 min,
-    // take item off queue. Remove from redis.
+// Determines whether a timestamp is older than a given number of minutes
+const isOlderThanLimit = function (timestamp, minutes = 10, currentTime = moment()) {
+  return moment(timestamp).add(minutes, 'minutes') > moment(currentTime);
 };
 
+// Takes jobs from the cache queue and removes items from the cache until they are all less
+// than 10 minutes old or there are no more than 10,000 items in the cache
+const archiver = async function () {
+  const itemsToArchive = [];
+  const currentTime = moment();
+
+  try {
+    // Determines whether cache size exceeds 10,000
+    const size = await redisClient.dbsizePromise();
+    let mustRemove = size > 10000 ? size - 10000 : 0;
+    console.log(mustRemove);
+
+    // Takes jobs off queue, and pushes id's to archive to array
+    const archiveItem = (data) => {
+      if (mustRemove-- > 0 || isOlderThanLimit(data.timestamp, 10, currentTime)) {
+        itemsToArchive.push(data.id);
+        getItemOffQueue(archiveItem);
+      } else {
+        addCalculationToCacheQueue(data.id, data.timestamp, 'high');
+      }
+    };
+
+    // getItemOffQueue(archiveItem);
+    console.log('hello ', itemsToArchive);
+
+    // Removes items from cache
+    // itemsToArchive.forEach((item) => {
+    //   redisClient.del(item, (err) => {
+    //     if (err) throw new Error(err);
+    //   });
+    // });
+  } catch (err) {
+    throw new Error('Error in archiver: ', err);
+  }
+};
 
 archiver();
 
