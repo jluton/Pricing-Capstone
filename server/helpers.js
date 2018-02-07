@@ -15,6 +15,7 @@ const quoteGenerator = async function (instantaneousPrice) {
     const prices = await getCachedInstantaneousPrices();
     prices.push(instantaneousPrice);
     const averagedPrice = prices.reduce((acc, value) => acc + value, 0) / prices.length;
+    console.log('averaged price: ', averagedPrice);
     // Determines a quoted surge ratio by constraining averaged price to >= 1 and <= 5.
     let quotedSurgeRatio;
     let surgeInEffect;
@@ -58,7 +59,6 @@ const archiver = async function () {
   try {
     // Determines whether cache size exceeds 10,000
     const size = await redisClient.dbsizeAsync();
-    console.log('size ', size);
     let mustRemove = size > 10000 ? size - 10000 : 0;
     console.log(mustRemove);
 
@@ -73,7 +73,6 @@ const archiver = async function () {
     // };
 
     // getItemOffQueue(archiveItem);
-    console.log('hello ', itemsToArchive);
 
     // Removes items from cache
     // itemsToArchive.forEach((item) => {

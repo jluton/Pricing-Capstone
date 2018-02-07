@@ -11,7 +11,7 @@ const cacheEntries = async function (n) {
   try {
     await cachePriceQuote(randomData);
     addCalculationToCacheQueue(calculationId, timestamp);
-    if (n > 1) cacheEntries(n - 1);
+    if (n > 1) await cacheEntries(n - 1);
   } catch (err) {
     throw new Error(err);
   }
@@ -19,8 +19,7 @@ const cacheEntries = async function (n) {
 
 const wipeRedis = async function () {
   try {
-    await wipeCache();
-    wipeQueue();
+    await redisClient.flushdbAsync();
   } catch (err) {
     throw new Error(err);
   }
@@ -31,23 +30,17 @@ const reportSizes = function () {
   queue.inactiveCountAsync().then(count => console.log('queue size: ', count));
 };
 
-// const regenerateRedis = async function (n) {
-//   try {
-//     await cacheEntries(n);
-//     const cacheSize = await redisClient.dbsizeAsync();
-//     let queueSize = null;
-//     queue.inactiveCountAsync()
-//       .then((size) => {
-//         queueSize = size;
-//       })
-//       .catch((err) => { throw new Error(err); });
-//     console.log('Cache size: ' + cacheSize + '\nQueue size: ' + queueSize);
-//   } catch (err) {
-//     if (err) throw new Error(err);
-//   }
-// };
+const regenerateRedis = async function (n) {
+  try {
+    await wipeRedis();
+    await cacheEntries(n);
+    setTimeout(() => {
+      reportSizes();
+    }, 25);
+  } catch (err) {
+    if (err) throw new Error(err);
+  }
+};
 
-// wipeRedis();
-// cacheEntries(10);
-reportSizes();
+regenerateRedis(100);
 
