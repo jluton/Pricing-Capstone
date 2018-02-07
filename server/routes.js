@@ -64,7 +64,6 @@ router.get('/pricing/', async (ctx) => {
 
 // Updates the database entry for a calculation whether it was accepted.
 router.post('/acceptReject/', async (ctx) => {
-  // TODO: Test this. Probably write tests.
   const { quoteId, accepted } = ctx.request.body;
   try {
     await updateAccepted(quoteId, accepted);
