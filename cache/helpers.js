@@ -18,9 +18,9 @@ const cachePriceQuote = async function (data) {
   console.log('cachePriceQuote');
   const { calculationId, timestamp, instantaneousPrice } = data;
   const hashArray = ['timestamp', timestamp, 'instantaneousPrice', instantaneousPrice];
-  // debugger;
+  const key = 'c:' + calculationId;
   try {
-    const res = await redisClient.hmsetAsync(calculationId, hashArray);
+    const res = await redisClient.hmsetAsync(key, hashArray);
     console.log(res);
     const size = await redisClient.dbsizeAsync();
     console.log('cache size: ', size);
@@ -38,21 +38,12 @@ const getCachedInstantaneousPrices = async function () {
   return quotes.map(quote => quote.instantaneousPrice);
 };
 
-// Fetches all keys in the redis cache.
-const getRedisKeys = function () {
-  return new Promise((resolve, reject) => {
-    redisClient.keys('*', (err, keys) => {
-      if (err) reject(err);
-      resolve(keys);
-    });
-  });
-};
-
 // Fetches all quotes in the cache.
 const getAllCachedQuotes = async function () {
   try {
     const promisedQuotes = [];
-    const keys = await getRedisKeys();
+    const keys = await redisClient.keysAsync('c*');
+    console.log('keys: ', keys);
     keys.forEach((key) => {
       if (key !== 'language') {
         promisedQuotes.push(redisClient.hgetallAsync(key));

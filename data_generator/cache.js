@@ -48,6 +48,6 @@ const reportSizes = function () {
 // };
 
 // wipeRedis();
-cacheEntries(10);
-// reportSizes();
+// cacheEntries(10);
+reportSizes();
 
