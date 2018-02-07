@@ -5,6 +5,7 @@ const redisClient = require('./../cache/index');
 const { getCachedInstantaneousPrices } = require('./../cache/helpers');
 const { getItemOffQueue, addCalculationToCacheQueue } = require('./../cache/queue');
 
+// TODO: is there a way for previousTheshold to reset automatically?
 let previousThresholdCrossed = 0;
 
 // Takes most recent instantaneous price and asynch. returns an object with a quoted surge ratio.
@@ -52,22 +53,24 @@ const isOlderThanLimit = function (timestamp, minutes = 10, currentTime = moment
 const archiver = async function () {
   const itemsToArchive = [];
   const currentTime = moment();
+  console.log('runs archiver');
 
   try {
     // Determines whether cache size exceeds 10,000
-    const size = await redisClient.dbsizePromise();
+    const size = await redisClient.dbsizeAsync();
+    console.log('size ', size);
     let mustRemove = size > 10000 ? size - 10000 : 0;
     console.log(mustRemove);
 
     // Takes jobs off queue, and pushes id's to archive to array
-    const archiveItem = (data) => {
-      if (mustRemove-- > 0 || isOlderThanLimit(data.timestamp, 10, currentTime)) {
-        itemsToArchive.push(data.id);
-        getItemOffQueue(archiveItem);
-      } else {
-        addCalculationToCacheQueue(data.id, data.timestamp, 'high');
-      }
-    };
+    // const archiveItem = (data) => {
+    //   if (mustRemove-- > 0 || isOlderThanLimit(data.timestamp, 10, currentTime)) {
+    //     itemsToArchive.push(data.id);
+    //     getItemOffQueue(archiveItem);
+    //   } else {
+    //     addCalculationToCacheQueue(data.id, data.timestamp, 'high');
+    //   }
+    // };
 
     // getItemOffQueue(archiveItem);
     console.log('hello ', itemsToArchive);

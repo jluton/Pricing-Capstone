@@ -2,41 +2,39 @@ const redis = require('redis');
 const redisClient = require('./index.js');
 
 // Takes a data object for a price quote and stores it as a redis hash.
-const cachePriceQuote = function (data) {
+// const cachePriceQuote = function (data) {
+//   console.log('cachePriceQuote');
+//   const { calculationId, timestamp, instantaneousPrice } = data;
+//   const hashArray = ['timestamp', timestamp, 'instantaneousPrice', instantaneousPrice];
+
+//   return new Promise((resolve, reject) => {
+//     redisClient.hmset(calculationId, hashArray, (err, res) => {
+//       if (err) reject(err);
+//       resolve(res);
+//     });
+//   });
+// };
+const cachePriceQuote = async function (data) {
+  console.log('cachePriceQuote');
   const { calculationId, timestamp, instantaneousPrice } = data;
   const hashArray = ['timestamp', timestamp, 'instantaneousPrice', instantaneousPrice];
-
-  return new Promise((resolve, reject) => {
-    redisClient.hmset(calculationId, hashArray, (err, res) => {
-      if (err) reject(err);
-      resolve(res);
-    });
-  });
-};
-
-// Returns a promise for all values for a hash.
-redisClient.hgetallPromise = function (key) {
-  return new Promise((resolve, reject) => {
-    this.hgetall(key, (err, obj) => {
-      if (err) reject(err);
-      resolve(obj);
-    });
-  });
-};
-
-// Returns a promise for the number of entries in the cache.
-redisClient.dbsizePromise = function () {
-  return new Promise((resolve, reject) => {
-    redisClient.dbsize((err, size) => {
-      if (err) reject(err);
-      resolve(size);
-    });
-  });
+  // debugger;
+  try {
+    const res = await redisClient.hmsetAsync(calculationId, hashArray);
+    console.log(res);
+    const size = await redisClient.dbsizeAsync();
+    console.log('cache size: ', size);
+    return res;
+  } catch (err) {
+    console.log('Error in cachePriceQuote!');
+    throw new Error(err);
+  }
 };
 
 // Fetches all instantaneous prices in the cache and returns an array.
 const getCachedInstantaneousPrices = async function () {
   const quotes = await getAllCachedQuotes();
+  console.log('quotes ', quotes);
   return quotes.map(quote => quote.instantaneousPrice);
 };
 
@@ -57,10 +55,12 @@ const getAllCachedQuotes = async function () {
     const keys = await getRedisKeys();
     keys.forEach((key) => {
       if (key !== 'language') {
-        promisedQuotes.push(redisClient.hgetallPromise(key));
+        promisedQuotes.push(redisClient.hgetallAsync(key));
       }
     });
+    console.log('promised quotes: ', promisedQuotes);
     const quotes = await Promise.all(promisedQuotes);
+    console.log('quotes ', quotes);
     return quotes;
   } catch (err) {
     throw new Error(err);
@@ -77,7 +77,7 @@ const wipeCache = function () {
   });
 };
 
-console.log(getCachedInstantaneousPrices());
+// console.log(getCachedInstantaneousPrices());
 
 module.exports = {
   cachePriceQuote,
