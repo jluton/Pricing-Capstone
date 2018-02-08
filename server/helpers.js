@@ -48,13 +48,12 @@ const quoteGenerator = async function (instantaneousPrice) {
 
 // Determines whether a timestamp is older than a given number of minutes
 const isOlderThanLimit = function (timestamp, minutes = cacheTimeLimit, currentTime = moment()) {
-  return moment(timestamp).add(minutes, 'minutes') > moment(currentTime);
+  return currentTime > moment(timestamp).add(minutes, 'minutes');
 };
 
 // Takes jobs from the cache queue and removes items from the cache until they are all less
 // than 10 minutes old or there are no more than 10,000 items in the cache
 const archiver = async function () {
-  const itemsToArchive = [];
   const currentTime = moment();
   console.log('runs archiver');
 
@@ -65,6 +64,8 @@ const archiver = async function () {
 
     // Takes item of the queue and archives it from cache. Repeats for as long as necessary.
     const archiveItems = async () => {
+      // TODO: I think the queue is leaking memory because done() is never called to reset the event listener.
+      // Investigate pausing process.
       const job = await getItemOffQueue();
       const { id, timestamp } = job;
 

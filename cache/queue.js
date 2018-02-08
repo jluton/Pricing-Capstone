@@ -19,20 +19,13 @@ const addCalculationToCacheQueue = function (id, timestamp, priority = 'normal')
     .save();
 };
 
-// TODO: change comments
-// Gets top item off queue and passes its data to a callback function.
-const getItemOffQueue = function (cb) {
+// Gets top item off queue and returns its data as a promise.
+const getItemOffQueue = function () {
   return new Promise((resolve, reject) => {
-    queue.process('calculation', (job, done) => {
+    queue.process('calculation', (job) => {
       resolve(job.data);
-      done();
     });
   });
-
-  // queue.process('calculation', (job, done) => {
-  //   console.log('job: ', job);
-  //   done();
-  // });
 };
 
 // Deletes all items in queue. For maintenance only.

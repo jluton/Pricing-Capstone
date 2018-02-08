@@ -26,7 +26,8 @@ const wipeRedis = async function () {
 };
 
 const reportSizes = function () {
-  redisClient.dbsizeAsync().then(size => console.log('cache size: ', size));
+  redisClient.dbsizeAsync().then(size => console.log('redis size: ', size));
+  redisClient.keysAsync('c*').then(entries => console.log('cache entries: ', entries.length));
   queue.inactiveCountAsync().then(count => console.log('queue size: ', count));
 };
 
@@ -42,6 +43,6 @@ const regenerateRedis = async function (n) {
   }
 };
 
-reportSizes();
-// regenerateRedis(10500);
+// reportSizes();
+regenerateRedis(10500);
 

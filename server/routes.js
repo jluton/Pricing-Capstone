@@ -39,7 +39,6 @@ router.get('/pricing/', async (ctx) => {
   cachePriceQuote(cacheData);
   addCalculationToCacheQueue(calculationId, timestamp);
 
-
   // Store calculation data in database.
   // TODO: Test this.
   const data = {
