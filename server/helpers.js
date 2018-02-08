@@ -54,33 +54,44 @@ const isOlderThanLimit = function (timestamp, minutes = cacheTimeLimit, currentT
 // Takes jobs from the cache queue and removes items from the cache until they are all less
 // than 10 minutes old or there are no more than 10,000 items in the cache
 const archiver = async function () {
-  console.log('runs archiver');
-  const currentTime = moment();
+  console.log('Archiver running.');
+  let currentTime = moment();
 
   try {
     // Determines whether cache size exceeds 10,000 and if so, how many items must be removed.
-    const cacheEntries = await redisClient.keysAsync('c*');
+    let cacheEntries = await redisClient.keysAsync('c*');
     let mustRemove = cacheEntries.length > 10000 ? cacheEntries.length - 10000 : 0;
 
     // Processes job and marks it as done if it should be deleted.
-    const processJob = function (job, done) {
+    const processJob = function (job, ctx, done) {
+      console.log('processing job');
+      console.log(mustRemove);
       const { id, timestamp } = job;
       if (mustRemove-- > 0 || isOlderThanLimit(timestamp, cacheTimeLimit, currentTime)) {
-        redisClient.delAsync(id).catch((err) => { throw new Error(err); });
+        redisClient.delAsync(`c:${id}`).catch((err) => { throw new Error(err); });
         done();
       } else {
-        // If the calculation should not be removed from the cache, put the job back on the queue and shut down the worker.
-        queue.shutdown((err) => {
+        // If the calculation should not be removed from the cache, put the job back on the queue and pause the worker.
+        ctx.pause(async (err) => {
           if (err) throw new Error(err);
-          process.exit(0);
+          console.log('Worker is paused.');
+          setTimeout(async () => {
+            currentTime = moment();
+            cacheEntries = await redisClient.keysAsync('c*');
+            mustRemove = cacheEntries.length > 10000 ? cacheEntries.length - 10000 : 0;
+            console.log('entries: ', cacheEntries);
+            console.log('must remove: ', mustRemove);
+            console.log('Working resuming.');
+            ctx.resume();
+          }, 10000);
         });
         addCalculationToCacheQueue(id, timestamp, 'high');
       }
     };
 
-    queue.process('calculation', (job, done) => {
-      // console.log('get job')
-      processJob(job.data, done);
+    // Create the queue worker
+    queue.process('calculation', (job, ctx, done) => {
+      processJob(job.data, ctx, done);
     });
   } catch (err) {
     throw new Error('Error in archiver: ', err);

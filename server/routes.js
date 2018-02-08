@@ -12,6 +12,7 @@ const { addCalculationToCacheQueue } = require('./../cache/queue');
 const router = new Router();
 
 router.get('/pricing/', async (ctx) => {
+  console.log('request received');
   // Calls instantaneous price algorithm to generate price based on immediate supply/demand.
   const totalUsers = parseInt(ctx.query.totalUsers, 10);
   const waitingUsers = parseInt(ctx.query.waitingUsers, 10);

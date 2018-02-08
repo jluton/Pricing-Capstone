@@ -14,5 +14,4 @@ app
   .use(router.allowedMethods())
   .listen(PORT, () => console.log(`Koa server listening on port ${PORT}.`));
 
-setInterval(archiver, 10000);
-
+archiver();
