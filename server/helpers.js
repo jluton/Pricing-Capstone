@@ -7,6 +7,8 @@ const { getItemOffQueue, addCalculationToCacheQueue } = require('./../cache/queu
 
 // TODO: is there a way for previousTheshold to reset automatically?
 let previousThresholdCrossed = 0;
+// Time limit in minutes, after which surge ratio calculations are removed from the cache.
+const cacheTimeLimit = 10;
 
 // Takes most recent instantaneous price and asynch. returns an object with a quoted surge ratio.
 const quoteGenerator = async function (instantaneousPrice) {
@@ -45,7 +47,7 @@ const quoteGenerator = async function (instantaneousPrice) {
 };
 
 // Determines whether a timestamp is older than a given number of minutes
-const isOlderThanLimit = function (timestamp, minutes = 10, currentTime = moment()) {
+const isOlderThanLimit = function (timestamp, minutes = cacheTimeLimit, currentTime = moment()) {
   return moment(timestamp).add(minutes, 'minutes') > moment(currentTime);
 };
 
@@ -57,29 +59,25 @@ const archiver = async function () {
   console.log('runs archiver');
 
   try {
-    // Determines whether cache size exceeds 10,000
-    const size = await redisClient.dbsizeAsync();
-    let mustRemove = size > 10000 ? size - 10000 : 0;
-    console.log(mustRemove);
+    // Determines whether cache size exceeds 10,000 and if so, how many items must be removed.
+    const cacheEntries = await redisClient.keysAsync('c*');
+    let mustRemove = cacheEntries.length > 10000 ? cacheEntries.length - 10000 : 0;
 
-    // Takes jobs off queue, and pushes id's to archive to array
-    // const archiveItem = (data) => {
-    //   if (mustRemove-- > 0 || isOlderThanLimit(data.timestamp, 10, currentTime)) {
-    //     itemsToArchive.push(data.id);
-    //     getItemOffQueue(archiveItem);
-    //   } else {
-    //     addCalculationToCacheQueue(data.id, data.timestamp, 'high');
-    //   }
-    // };
+    // Takes item of the queue and archives it from cache. Repeats for as long as necessary.
+    const archiveItems = async () => {
+      const job = await getItemOffQueue();
+      const { id, timestamp } = job;
 
-    // getItemOffQueue(archiveItem);
+      if (mustRemove-- > 0 || isOlderThanLimit(timestamp, cacheTimeLimit, currentTime)) {
+        redisClient.delAsync(id).catch((err) => { throw new Error(err); });
+        archiveItems();
+      } else {
+        // If item does not need to be archived, put it back on top of queue.
+        addCalculationToCacheQueue(id, timestamp, 'high');
+      }
+    };
 
-    // Removes items from cache
-    // itemsToArchive.forEach((item) => {
-    //   redisClient.del(item, (err) => {
-    //     if (err) throw new Error(err);
-    //   });
-    // });
+    archiveItems();
   } catch (err) {
     throw new Error('Error in archiver: ', err);
   }

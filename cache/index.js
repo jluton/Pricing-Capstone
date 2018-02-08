@@ -13,6 +13,7 @@ redisClient.hgetallAsync = promisify(redisClient.hgetall).bind(redisClient);
 redisClient.hmsetAsync = promisify(redisClient.hmset).bind(redisClient);
 redisClient.keysAsync = promisify(redisClient.keys).bind(redisClient);
 redisClient.flushdbAsync = promisify(redisClient.flushdb).bind(redisClient);
+redisClient.delAsync = promisify(redisClient.del).bind(redisClient);
 
 redisClient.on('connect', () => {
   console.log('Connected to Redis cache.');

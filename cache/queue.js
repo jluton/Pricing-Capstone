@@ -13,19 +13,26 @@ kue.Job.getAsync = promisify(kue.Job.get).bind(kue.Job);
 
 // Adds a calculation to a queue, which will be used to remove calculation to cache.
 const addCalculationToCacheQueue = function (id, timestamp, priority = 'normal') {
-  console.log('adding calculation to queue');
   queue.create('calculation', { id, timestamp })
     .priority(priority)
     .removeOnComplete(true)
     .save();
 };
 
+// TODO: change comments
 // Gets top item off queue and passes its data to a callback function.
 const getItemOffQueue = function (cb) {
-  queue.process('calculation', (job, done) => {
-    cb(job.data);
-    done();
+  return new Promise((resolve, reject) => {
+    queue.process('calculation', (job, done) => {
+      resolve(job.data);
+      done();
+    });
   });
+
+  // queue.process('calculation', (job, done) => {
+  //   console.log('job: ', job);
+  //   done();
+  // });
 };
 
 // Deletes all items in queue. For maintenance only.
