@@ -19,15 +19,6 @@ const addCalculationToCacheQueue = function (id, timestamp, priority = 'normal')
     .save();
 };
 
-// Gets top item off queue and returns its data as a promise.
-const getItemOffQueue = function () {
-  return new Promise((resolve, reject) => {
-    queue.process('calculation', (job) => {
-      resolve(job.data);
-    });
-  });
-};
-
 // Deletes all items in queue. For maintenance only.
 const wipeQueue = async function () {
   try {
@@ -46,7 +37,6 @@ const wipeQueue = async function () {
 
 module.exports = {
   queue,
-  getItemOffQueue,
   addCalculationToCacheQueue,
   wipeQueue,
 };

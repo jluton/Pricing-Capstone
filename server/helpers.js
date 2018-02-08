@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const redisClient = require('./../cache/index');
 const { getCachedInstantaneousPrices } = require('./../cache/helpers');
-const { getItemOffQueue, addCalculationToCacheQueue } = require('./../cache/queue');
+const { addCalculationToCacheQueue, queue } = require('./../cache/queue');
 
 // TODO: is there a way for previousTheshold to reset automatically?
 let previousThresholdCrossed = 0;
@@ -54,37 +54,38 @@ const isOlderThanLimit = function (timestamp, minutes = cacheTimeLimit, currentT
 // Takes jobs from the cache queue and removes items from the cache until they are all less
 // than 10 minutes old or there are no more than 10,000 items in the cache
 const archiver = async function () {
-  const currentTime = moment();
   console.log('runs archiver');
+  const currentTime = moment();
 
   try {
     // Determines whether cache size exceeds 10,000 and if so, how many items must be removed.
     const cacheEntries = await redisClient.keysAsync('c*');
     let mustRemove = cacheEntries.length > 10000 ? cacheEntries.length - 10000 : 0;
 
-    // Takes item of the queue and archives it from cache. Repeats for as long as necessary.
-    const archiveItems = async () => {
-      // TODO: I think the queue is leaking memory because done() is never called to reset the event listener.
-      // Investigate pausing process.
-      const job = await getItemOffQueue();
+    // Processes job and marks it as done if it should be deleted.
+    const processJob = function (job, done) {
       const { id, timestamp } = job;
-
       if (mustRemove-- > 0 || isOlderThanLimit(timestamp, cacheTimeLimit, currentTime)) {
         redisClient.delAsync(id).catch((err) => { throw new Error(err); });
-        archiveItems();
+        done();
       } else {
-        // If item does not need to be archived, put it back on top of queue.
+        // If the calculation should not be removed from the cache, put the job back on the queue and shut down the worker.
+        queue.shutdown((err) => {
+          if (err) throw new Error(err);
+          process.exit(0);
+        });
         addCalculationToCacheQueue(id, timestamp, 'high');
       }
     };
 
-    archiveItems();
+    queue.process('calculation', (job, done) => {
+      // console.log('get job')
+      processJob(job.data, done);
+    });
   } catch (err) {
     throw new Error('Error in archiver: ', err);
   }
 };
-
-archiver();
 
 // Notifies Cars service that a price threshold has been crossed, and provides updated surge ratio.
 const sendThresholdNotification = function (quotedSurgeRatio) {
