@@ -21,7 +21,7 @@ describe('GET pricing', () => {
       })
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).to.have.property('id');
+        expect(res.body).to.have.property('calculationId');
         expect(res.body.id).to.be.a('number')
         expect(res.body).to.have.property('quotedSurgeRatio');
         expect(res.body.quotedSurgeRatio).to.be.a('number')
