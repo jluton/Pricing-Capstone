@@ -12,7 +12,8 @@
     "lint": "./node_modules/.bin/eslint .",
     "database": "postgres -D /usr/local/var/postgres",
     "generate-data": "node data_generator/database.js",
-    "schema": "psql -f ./database/schema.sql postgres"
+    "schema": "psql -f ./database/schema.sql postgres",
+    "siege": "node performance/benchmark"
   },
   "repository": {
     "type": "git",

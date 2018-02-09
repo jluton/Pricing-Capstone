@@ -1,4 +1,4 @@
-const cars = require('./../cars/cars.js');
+const cars = require('./../global_variables/cars');
 
 const calculateInstantaneousPrice = function (usersData) {
   const { totalActiveDrivers, availableDrivers } = cars;

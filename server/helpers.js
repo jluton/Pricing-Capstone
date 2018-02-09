@@ -1,5 +1,5 @@
 const Axios = require('axios');
-
+const activeQuote = require('./../global_variables/activeQuote');
 const { getCachedInstantaneousPrices } = require('./../cache/helpers');
 
 // TODO: is there a way for previousTheshold to reset automatically?
@@ -7,6 +7,7 @@ let previousThresholdCrossed = 0;
 // Time limit in minutes, after which surge ratio calculations are removed from the cache.
 
 // Takes most recent instantaneous price and asynch. returns an object with a quoted surge ratio.
+// Repeats itself every second.
 const quoteGenerator = async function (instantaneousPrice) {
   try {
     // Fetches prices from cached and generates an average price.
@@ -32,6 +33,7 @@ const quoteGenerator = async function (instantaneousPrice) {
       surgeInEffect = false;
       quotedSurgeRatio = 1;
     }
+    // TODO: re-evaluate threshold system
     // Determines whether the quoted price crossed a 0.5X threshold, for notification to drivers.
     let crossedThreshold = false;
     const thresholdCrossed = Math.floor(quotedSurgeRatio / 0.5) * 0.5;
@@ -39,12 +41,15 @@ const quoteGenerator = async function (instantaneousPrice) {
       previousThresholdCrossed = thresholdCrossed;
       if (thresholdCrossed > 1) crossedThreshold = true;
     }
-    // Returns object with calculated information.
-    return {
-      quotedSurgeRatio,
-      surgeInEffect,
-      crossedThreshold,
-    };
+
+    // Updates the active quote global object
+    activeQuote.quotedSurgeRatio = quotedSurgeRatio;
+    activeQuote.surgeInEffect = surgeInEffect;
+    activeQuote.crossedThreshold = crossedThreshold;
+    console.log('activeQuote changed! ', activeQuote);
+
+    // Pauses for 1 second, then runs itself again.
+    setTimeout(quoteGenerator, 1000);
   } catch (err) {
     throw new Error(err);
   }

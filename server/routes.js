@@ -2,12 +2,13 @@ const Router = require('koa-router');
 const uniqid = require('uniqid');
 const moment = require('moment');
 
-const cars = require('./../cars/cars.js');
+const cars = require('./../global_variables/cars.js');
 const { calculateInstantaneousPrice } = require('./algorithms.js');
-const { quoteGenerator, sendThresholdNotification } = require('./helpers.js');
+const { sendThresholdNotification } = require('./helpers.js');
 const { updateAccepted, storeQuoteEntry } = require('./../database/helpers.js');
 const { cachePriceQuote } = require('./../cache/helpers.js');
 const { addCalculationToCacheQueue } = require('./../cache/queue');
+const { quotedSurgeRatio, surgeInEffect, crossedThreshold } = require('./../global_variables/activeQuote');
 
 const router = new Router();
 
@@ -23,13 +24,13 @@ router.get('/pricing/', async (ctx) => {
   const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
   const calculationId = uniqid();
 
-  // Gets a price quote and assembles response object.
-  const quoteInfo = await quoteGenerator(instantaneousPrice);
-  const { quotedSurgeRatio, surgeInEffect, crossedThreshold } = quoteInfo;
-  quoteInfo.calculationId = calculationId;
-
   // Send quote back to Passengers service.
-  ctx.body = quoteInfo;
+  ctx.body = {
+    calculationId,
+    quotedSurgeRatio,
+    surgeInEffect,
+    crossedThreshold,
+  };
 
   // Store instantaneous price in 10 minute cache.
   const cacheData = {
@@ -40,13 +41,13 @@ router.get('/pricing/', async (ctx) => {
   cachePriceQuote(cacheData);
   addCalculationToCacheQueue(calculationId, timestamp);
 
-  // Store calculation data in database.
-  // TODO: Test this.
+  // Store all price information in SQL database
   const data = {
     calculationId,
     timestamp,
     instantaneousPrice,
     quotedSurgeRatio,
+    surgeInEffect,
     totalUsers,
     waitingUsers,
     totalActiveDrivers: cars.totalActiveDrivers,
@@ -56,6 +57,7 @@ router.get('/pricing/', async (ctx) => {
   storeQuoteEntry(data)
     .catch((err) => { throw new Error(err); });
 
+  // TODO: move this functionality to quote generator.
   // If a price threshold was crossed, notify the Cars service.
   if (crossedThreshold) {
     sendThresholdNotification(quotedSurgeRatio);
