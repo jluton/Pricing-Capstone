@@ -2,6 +2,7 @@ const { expect, should } = require('chai');
 const client = require('./../database/index');
 const { storeQuoteEntry, updateAccepted, getCalculationById } = require('./../database/helpers');
 const produceRandomData = require('./../data_generator/random_data');
+const { regenerateRedis } = require('./../data_generator/cache');
 
 const cleanDB = function () {
   return client.query(`DELETE FROM quotes WHERE calculation_id='TESTENTRY' OR calculation_id='TESTENTRY2'`)
@@ -11,6 +12,7 @@ describe('Database', () => {
   before(async () => {
     try {
       await cleanDB()
+      await regenerateRedis(100, false);
 
       const queryString = `INSERT INTO quotes VALUES
       ('TESTENTRY2', '2018-02-09T23:33:17.000Z', 1.5, 1.35, 60, 3, 42, 1, null)`;

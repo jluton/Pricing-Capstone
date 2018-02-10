@@ -27,8 +27,7 @@ const archiver = async function () {
 
     // Processes job and marks it as done if it should be deleted.
     const processJob = function (job, ctx, done) {
-      console.log('processing job');
-      console.log(mustRemove);
+      console.log('processing job ', mustRemove);
       const { id, timestamp } = job;
       if (mustRemove-- > 0 || isOlderThanLimit(timestamp, cacheTimeLimit, currentTime)) {
         redisClient.delAsync(`c:${id}`).catch((err) => { throw new Error(err); });
