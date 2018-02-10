@@ -2,7 +2,7 @@ const uniqid = require('uniqid');
 const moment = require('moment');
 
 // Generates an object with randomized quote data.
-module.exports = function produceRandomData (includeAccepted = true) {
+module.exports = function produceRandomData(includeAccepted = true) {
   const totalUsers = Math.floor(Math.random() * 1000) + 1;
   const waitingUsers = Math.floor(Math.random() * totalUsers * 0.3);
   const totalActiveDrivers = Math.floor(Math.random() * 1000) + 1;
@@ -11,7 +11,7 @@ module.exports = function produceRandomData (includeAccepted = true) {
   let instantaneousPrice = ((1 / (9 * availableDrivers / totalActiveDrivers)) +
   (10 * waitingUsers / totalUsers)) / 2;
   instantaneousPrice = isFinite(instantaneousPrice) ? instantaneousPrice : 0;
-  instantaneousPrice = instantaneousPrice <= 5 ? instantaneousPrice: 5;
+  instantaneousPrice = instantaneousPrice <= 5 ? instantaneousPrice : 5;
 
   let quotedSurgeRatio = instantaneousPrice + (Math.random() * 2 - 1);
   quotedSurgeRatio = quotedSurgeRatio > 1 ? quotedSurgeRatio : 1;

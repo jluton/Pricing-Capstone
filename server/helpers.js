@@ -22,7 +22,6 @@ const quoteGenerator = async function (instantaneousPrice) {
       notNumbers++;
       return acc;
     }, 0) / (prices.length - notNumbers);
-    console.log('averaged price: ', averagedPrice);
     // Determines a quoted surge ratio by constraining averaged price to >= 1 and <= 5.
     let quotedSurgeRatio;
     let surgeInEffect;
@@ -46,10 +45,9 @@ const quoteGenerator = async function (instantaneousPrice) {
     activeQuote.quotedSurgeRatio = quotedSurgeRatio;
     activeQuote.surgeInEffect = surgeInEffect;
     activeQuote.crossedThreshold = crossedThreshold;
-    console.log('activeQuote changed! ', activeQuote);
 
     // Pauses for 1 second, then runs itself again.
-    setTimeout(quoteGenerator, 1000);
+    setTimeout(quoteGenerator, 0);
   } catch (err) {
     throw new Error(err);
   }

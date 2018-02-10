@@ -13,7 +13,6 @@ const { quotedSurgeRatio, surgeInEffect, crossedThreshold } = require('./../glob
 const router = new Router();
 
 router.get('/pricing/', async (ctx) => {
-  console.log('request received');
   // Calls instantaneous price algorithm to generate price based on immediate supply/demand.
   const totalUsers = parseInt(ctx.query.totalUsers, 10);
   const waitingUsers = parseInt(ctx.query.waitingUsers, 10);
@@ -41,6 +40,7 @@ router.get('/pricing/', async (ctx) => {
   cachePriceQuote(cacheData);
   addCalculationToCacheQueue(calculationId, timestamp);
 
+  // TODO: SQL probably can't keep up with the rate at which new entries are going to come in. Implement a queue?
   // Store all price information in SQL database
   const data = {
     calculationId,

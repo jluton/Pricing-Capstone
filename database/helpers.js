@@ -1,19 +1,13 @@
 const client = require('./index.js');
 
-const getEntries = function() {
-  const queryString = 'SELECT * FROM quotes';
-  client.query(queryString)
-    .then(res => console.log(res))
-    .catch((err) => { throw new Error(err); });
-};
-
-const getCalculationById = function(id) {
+// Returns data for a calculation entry with a given Id.
+const getCalculationById = function (id) {
   const queryString = `SELECT * FROM quotes WHERE calculation_id='${id}'`;
   return client.query(queryString);
 };
 
 // Takes an id and a boolean and updates a data entry to record whether it was accepted.
-const updateAccepted = function(id, accepted) {
+const updateAccepted = function (id, accepted) {
   const queryString = `UPDATE quotes SET accepted=${accepted} WHERE calculation_id='${id}'`;
   return client.query(queryString);
 };
@@ -34,6 +28,7 @@ const storeQuoteEntry = function (data) {
 };
 
 module.exports = {
+  getCalculationById,
   storeQuoteEntry,
   updateAccepted,
 };

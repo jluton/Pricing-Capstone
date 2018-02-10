@@ -21,14 +21,15 @@ describe('GET pricing', () => {
       })
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).to.have.property('calculationId');
-        expect(res.body.id).to.be.a('number')
-        expect(res.body).to.have.property('quotedSurgeRatio');
-        expect(res.body.quotedSurgeRatio).to.be.a('number')
-        expect(res.body).to.have.property('surgeInEffect');
-        expect(res.body.surgeInEffect).to.be.a('boolean')
-        expect(res.body).to.have.property('crossedThreshold');
-        expect(res.body.crossedThreshold).to.be.a('boolean')
+        const { body } = res;
+        expect(body).to.have.property('calculationId');
+        expect(body.id).to.be.a('number')
+        expect(body).to.have.property('quotedSurgeRatio');
+        expect(body.quotedSurgeRatio).to.be.a('number')
+        expect(body).to.have.property('surgeInEffect');
+        expect(body.surgeInEffect).to.be.a('boolean')
+        expect(body).to.have.property('crossedThreshold');
+        expect(body.crossedThreshold).to.be.a('boolean')
         done();
       });
   });

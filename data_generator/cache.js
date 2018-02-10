@@ -48,5 +48,5 @@ const regenerateRedis = async function (n) {
 };
 
 // reportSizes();
-regenerateRedis(10500);
+regenerateRedis(9000);
 
