@@ -2,14 +2,16 @@ const { expect, should } = require('chai');
 const redisClient = require('./../cache/index');
 const { queue, addCalculationToCacheQueue } = require('./../cache/queue');
 
-// TODO: The tests were working, and then I ran queue shutdown. Now nothing works :()
+// TODO: Still causing problems, but only intermittently. 
 
 describe('Queue', () => {
   before(async () => {
     await redisClient.flushdbAsync().catch((err) => { throw new Error(err); });
-    console.log('REDIS FLUSHED');
   })
-  after(() => {});
+  after(async () => {
+    // TODO: pause worker
+    await redisClient.flushdbAsync().catch((err) => { throw new Error(err); });
+  });
   it('Should add calculations to the queue', async () => {
     addCalculationToCacheQueue('TestEntry1', '2018-02-09T23:33:17.000Z');
     addCalculationToCacheQueue('TestEntry2', '2018-02-09T23:34:17.000Z');
