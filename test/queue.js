@@ -39,15 +39,25 @@ describe('Queue', () => {
     addCalculationToCacheQueue('TestEntry4', '2018-02-09T23:33:17.000Z');
     addCalculationToCacheQueue('TestEntry5', '2018-02-09T23:37:17.000Z', 'high');
 
-    queue.process('calculation', (job, done) => { return; });
+    // TODO: ctx not a function??
+    queue.process('calculation', (job, ctx) => { 
+      // ctx.pause((err) => {
+      //   if (err) throw new Error(err);
+      // })
+      return;
+    });
 
     const jobObject = await new Promise((resolve) => {
-      queue.process('calculation', (job, done) => {
-        resolve({ job, done });
+      queue.process('calculation', (job, ctx, done) => {
+        resolve({ job, ctx });
       })
     });
 
     expect(jobObject.job.data.id).to.equal('TestEntry5');
     expect(jobObject.job.data.timestamp).to.equal('2018-02-09T23:37:17.000Z');
+
+    // jobObject.ctx.pause((err) => {
+    //   if (err) throw new Error(err);
+    // });
   });
 });

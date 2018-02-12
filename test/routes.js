@@ -37,25 +37,24 @@ describe('Routes', () => {
   });
   
   describe('POST accept/reject', () => {
-    const requestBody = {
-      quoteId: 738945,
-      accepted: true,
-    }
-  
     it('should return 201', (done) => {
+      const requestBody = {
+        quoteId: 738945,
+        accepted: true,
+      };
+
       api.post('/acceptReject')
         .send(requestBody)
         .expect(201, done);
     });
   });
-  
   describe('POST cars', () => {
-    const requestBody = {
-      totalActiveDrivers: 40,
-      availableDrivers: 3,
-    }
-  
     it('should return 201', (done) => {
+      const requestBody = {
+        totalActiveDrivers: 40,
+        availableDrivers: 3,
+      };
+
       api.post('/cars')
         .send(requestBody)
         .expect(201, done);
