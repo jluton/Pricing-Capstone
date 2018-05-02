@@ -1,4 +1,3 @@
-const redis = require('redis');
 const redisClient = require('./index.js');
 
 // Takes a data object for a price quote and stores it as a redis hash.

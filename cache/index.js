@@ -3,7 +3,7 @@ const redisScanner = require('redis-scanner');
 const { promisify } = require('util');
 
 const PORT = 6379;
-const redisClient = redis.createClient(PORT);
+const redisClient = redis.createClient(PORT, 'redis_cache');
 
 redisScanner.bindScanners(redisClient);
 
@@ -15,9 +15,8 @@ redisClient.keysAsync = promisify(redisClient.keys).bind(redisClient);
 redisClient.flushdbAsync = promisify(redisClient.flushdb).bind(redisClient);
 redisClient.delAsync = promisify(redisClient.del).bind(redisClient);
 
-redisClient.on('connect', () => {
-  console.log('Connected to Redis cache.');
-});
+redisClient.on('connect', () => console.log('Connected to Redis cache.'));
+redisClient.on('error', (err) => { throw err; });
 
 redisClient.set('language', 'nodejs', (err, reply) => {
   if (err) throw new Error(err);

@@ -41,3 +41,4 @@ postgres -D /usr/local/var/postgres
 
 (TODO: fill this out with details about your project. Suggested ideas: architecture diagram, schema, and any other details from your app plan that sound interesting.)
 
+docker run -d -p 8080:8080 -v $(pwd)/:/src/app -v /src/app/node_modules --network pricing_network --name pricing_container pricing
