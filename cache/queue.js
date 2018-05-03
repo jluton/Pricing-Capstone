@@ -1,12 +1,15 @@
 const kue = require('kue');
 const { promisify } = require('util');
+require('dotenv').config();
 
 const queue = kue.createQueue({
   redis: { 
-    port: 6379, 
-    host: 'redis_queue',
+    port: process.env.QUEUE_PORT, 
+    host: process.env.QUEUE_HOST,
   }
 });
+
+queue.on('error', (err) => { throw err; });
 
 // Promisified versions of native kue methods.
 queue.inactiveCountAsync = promisify(queue.inactiveCount).bind(queue);

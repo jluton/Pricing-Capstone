@@ -1,15 +1,15 @@
-const client = require('./index.js');
+const { query } = require('./index.js');
 
 // Returns data for a calculation entry with a given Id.
 const getCalculationById = function (id) {
   const queryString = `SELECT * FROM quotes WHERE calculation_id='${id}'`;
-  return client.query(queryString);
+  return query(queryString);
 };
 
 // Takes an id and a boolean and updates a data entry to record whether it was accepted.
 const updateAccepted = function (id, accepted) {
   const queryString = `UPDATE quotes SET accepted=${accepted} WHERE calculation_id='${id}'`;
-  return client.query(queryString);
+  return query(queryString);
 };
 
 // Takes an object with data about a given price quote and stores it in the database.
@@ -24,7 +24,7 @@ const storeQuoteEntry = function (data) {
     VALUES('${calculationId}', '${timestamp}', ${instantaneousPrice}, ${quotedSurgeRatio}, ${totalUsers},
     ${waitingUsers}, ${totalActiveDrivers}, ${availableDrivers}, ${accepted});`;
 
-  return client.query(queryString);
+  return query(queryString);
 };
 
 module.exports = {

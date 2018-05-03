@@ -1,9 +1,13 @@
 const { Client } = require('pg');
-const dotenv = require('dotenv');
+require('dotenv').config()
 
-dotenv.config();
+const dbClient = new Client({
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: process.env.DB_PORT || 5432,
+  user: process.env.DB_USERNAME || 'postgres',
+  passowrd: process.env.DB_PASSWORD || null
+});
 
-const client = new Client('postgres_container');
-client.connect();
+dbClient.connect();
 
-module.exports = client;
+module.exports = dbClient;
