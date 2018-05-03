@@ -8,6 +8,8 @@ const dbClient = new Client({
   passowrd: process.env.DB_PASSWORD || null
 });
 
-dbClient.connect();
+dbClient.connect()
+  .then(() => { console.log('Connected to Postgres.'); })
+  .catch((err) => { throw err; });
 
 module.exports = dbClient;

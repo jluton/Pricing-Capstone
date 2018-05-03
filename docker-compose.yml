@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  pricing:
+    build: .
+    depends_on:
+      - 'database'
+      - 'cache'
+      - 'queue'
+    ports: 
+      - '8080:8080'
+
+  database:
+    image: postgres:10.3
+
+  cache:
+    image: redis:4.0.9
+
+  queue:
+    image: redis:4.0.9
